@@ -4,7 +4,7 @@
    RewriteEngine On
 
 #   RewriteRule ^panel$ http://vtaminka.zzz.com.ua/admin/wp-login [L]
-RewriteBase /my-blog/
+#RewriteBase /my-blog/
 
    RewriteCond %{REQUEST_FILENAME} -f [OR]
    RewriteCond %{REQUEST_FILENAME} -d
@@ -16,6 +16,6 @@ RewriteBase /my-blog/
       #RewriteRule ^admin admin/wp-login.php [L]
 #   RewriteRule ^vtaminka js/index.js [L]
 
- RewriteRule ^vtaminka app/public/index.html [L]
+ RewriteRule ^ app/public/index.html [L]
 
 </IfModule>

@@ -53,7 +53,7 @@ angular.module('VtaminkaApplication.controllers')
 
 angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
-        HOST: '/my-blog/app/public/',
+        HOST: '/wp-vtaminka/app/public/',
         GET_NEWS : 'news/news-list.json',
         GET_LANGS: 'i18n/langs.json',
         GET_PRODUCTS :'products/products-list.json',

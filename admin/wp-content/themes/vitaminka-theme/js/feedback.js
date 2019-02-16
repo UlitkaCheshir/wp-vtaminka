@@ -10,7 +10,7 @@ $(document).ready( function (  ){
         try{
 
             let response = await $.ajax({
-                'url': '/wp-admin/admin-ajax.php',
+                'url': '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
                 'type': 'POST',
                 'data': {
                     'email': email,

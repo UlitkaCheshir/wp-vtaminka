@@ -42,6 +42,8 @@ $entity->addEntityFields(
 //ajaxApi::registerApiAction('deleteOrder');
 
 ajaxApi::registerApiAction('sendMessageToAdmin');
+ajaxApi::registerApiAction('getProductList');
+
 
 add_action('admin_menu', 'CreateMyPluginMenu');
 

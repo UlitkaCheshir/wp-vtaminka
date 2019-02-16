@@ -74,6 +74,25 @@ class ajaxApi implements interfaceApi{
 
     }//sendMessageToAdmin
 
+    public static function getProductList(){
+
+        $products = get_posts([
+            'numberposts' => 10,
+            'post_type' => 'goods'
+        ]);
+
+
+
+        self::echoDataWithHeader([
+            'header' => 'json',
+            'fields'=>[
+                'product'=>$products,
+            ]
+            ]
+        );
+
+    }//getProductList
+
     public static function registerApiAction($action){
           
         add_action( "wp_ajax_$action", array('ajaxApi', $action));
