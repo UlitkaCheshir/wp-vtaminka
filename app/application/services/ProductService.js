@@ -14,21 +14,35 @@ export default class ProductService{
 
     async getProducts(){
 
-        //let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}` );
-
         try{
 
             let response = await this._$http({
-                method : "POST",
-                url : '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
-                data: {
-                    'action': 'getProductList',
+                method: 'POST',
+                url: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
+                data:{
+                        'numberposts': 10,
+                        'action': 'getProductList',
+                    },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
                 }
             });
 
 
+            console.log('RESPONSE: ' , response.data);
 
-            console.log('RESPONSE: ' , response);
+            let products = response.data.products;
+
+
+            products.forEach( p => {
+                p.amount = 1;
+            } );
+
+            return products;
 
         }//try
         catch( ex ){
@@ -38,15 +52,47 @@ export default class ProductService{
         }//catch
 
 
-        let products = response.data;
 
-        products.forEach( p => {
-            p.amount = 1;
-        } );
-
-        return products;
 
     }//getProducts
+
+    async getCategory(){
+
+        try{
+
+            let response = await this._$http({
+                method: 'POST',
+                url: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
+                data:{
+                    'action': 'getCategories',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+
+            console.log('RESPONSE: ' , response.data);
+
+            let categories = response.data;
+
+            return categories;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
+    }//getCategory
+
+    async getCategoryProducts( id ) {
+
+    }//getCategoryProducts
 
     async getSingleProduct(productID){
 

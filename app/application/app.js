@@ -146,10 +146,12 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
-
+                     ProductService.getCategory().then(response=>{
+                         $scope.categories = response;
+                    });
                 } ]
             },
             "content": {
@@ -210,7 +212,46 @@ app.config( [
         }
     });
 
-    $stateProvider.state('singleProduct' , {
+    $stateProvider.state('categoryProducts',{
+
+            'url':'/category/:categoryID',
+            "views":{
+                "header":{
+                    "templateUrl": "templates/header.html",
+                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                        $scope.langs = langs;
+                        $scope.cart = CartService.getCart();
+                    } ]
+                },
+                "content":{
+                    'templateUrl': "templates/categoryProducts/categoryProducts.html",
+                    controller:['$scope', '$stateParams' ,'ProductService','categoryProducts' ,function ($scope,$stateParams,ProductService,categoryProducts) {
+                        $scope.categoryProducts = categoryProducts;
+
+                        $scope.categoryID = $scope.categoryProducts
+
+                    }]
+                },
+                "footer": {
+                    'templateUrl': "templates/footer.html",
+                },
+            },
+            'resolve': {
+
+                'langs': [ 'LocaleService' , function ( LocaleService ){
+                    return LocaleService.getLangs();
+                }  ],
+
+                'categoryProducts':['ProductService','$stateParams', function  ( ProductService, $stateParams){
+                    return ProductService.getCategoryProducts($stateParams.categoryID);
+                }]
+
+            }
+
+        });
+
+
+        $stateProvider.state('singleProduct' , {
             'url': '/product/:productID/:productAmount',
             'views':{
                 "header":{

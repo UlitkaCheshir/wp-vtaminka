@@ -4,11 +4,14 @@ get_header() ;
 
 $category = get_queried_object();
 
+
 ?>
 
 <div class="bannerSlim" style="background-image: url('http://hdwallpapers.cat/wallpaper/strawberry_fruit_red_brown_green_wood_hd-wallpaper-1725166.jpg');">
     <div class="bannerWrap"></div>
     <h2><?= $category->name ?></h2>
+
+    <div><h2><?= $category2 ?></h2></div>
 </div>
 <div class="products clearfix">
 

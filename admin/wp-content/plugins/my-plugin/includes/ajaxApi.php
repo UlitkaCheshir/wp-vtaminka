@@ -76,22 +76,104 @@ class ajaxApi implements interfaceApi{
 
     public static function getProductList(){
 
+        $numberposts = filter_input(INPUT_POST,'numberposts',FILTER_SANITIZE_NUMBER_INT);
+
         $products = get_posts([
-            'numberposts' => 10,
-            'post_type' => 'goods'
+            'numberposts' => $numberposts,
+            'post_type' => 'goods',
+
         ]);
 
+        $productsNew = [];
+
+        foreach ($products as $product) :
+            $price = get_post_meta($product->ID, 'price', true );
+            $id = $product->ID;
+
+            $thumb_id = get_post_thumbnail_id($id);
+            $image = wp_get_attachment_image_src($thumb_id,'full');//
+            $image = $image[0];
+
+            $link = get_permalink($product->ID);
+
+            $productsNew[]=[
+                    "ProductID"=>$id,
+                    "ProductTitle"=>$product->post_title,
+                    "ProductPrice"=>$price,
+                    "ProductImage"=>$image,
+                    "link"=>$link
+        ];
+
+        endforeach;
 
 
         self::echoDataWithHeader([
             'header' => 'json',
             'fields'=>[
-                'product'=>$products,
+                'products'=>$productsNew,
+
             ]
             ]
         );
 
     }//getProductList
+
+    public static function getCategories(){
+
+        $categories = get_terms( 'vtaminkataxonomy' , [
+            'orderby'           => 'name',
+            'order'             => 'ASC',
+            'hide_empty'        => false,
+            'exclude'           => array(),
+            'exclude_tree'      => array(),
+            'include'           => array(),
+            'fields'            => 'all',
+            'slug'              => '',
+            'parent'            => null,
+            'hierarchical'      => false,
+            'childless'         => false,
+            'get'               => '',
+            'name__like'        => '',
+            'description__like' => '',
+            'pad_counts'        => false,
+            'offset'            => '',
+            'search'            => '',
+            'cache_domain'      => 'core'
+        ] );
+
+        $categoryList = [];
+
+        foreach ($categories as $category) :
+
+            $categoryName = $category->name;
+            $categoryList[]= [
+                'term_id'=>$category->term_id,
+                'name'=>$categoryName
+            ];
+
+         endforeach;
+
+
+        self::echoDataWithHeader([
+                'fields'=>$categoryList
+            ]
+        );
+    }//getCategories
+
+    public static function getProductByCategory(){
+
+
+        $products = query_posts(array('vtaminkataxonomy' => '3', 'post_type' => 'goods'));
+
+        self::echoDataWithHeader([
+                'header' => 'json',
+                'fields'=>[
+                    'products'=>$products,
+
+                ]
+            ]
+        );
+    }//getProductByCategory
 
     public static function registerApiAction($action){
           
@@ -334,18 +416,18 @@ class ajaxApi implements interfaceApi{
 
     }//getSingleCategory
 
-    public static function getCategories($parent=null){
-
-
-        $categories = self::getCategoriesR(null);
-        self::echoDataWithHeader(
-            array(
-                'header' => 'json',
-                'fields' => $categories
-            )
-        );
-        
-    }
+//    public static function getCategories($parent=null){
+//
+//
+//        $categories = self::getCategoriesR(null);
+//        self::echoDataWithHeader(
+//            array(
+//                'header' => 'json',
+//                'fields' => $categories
+//            )
+//        );
+//
+//    }
 
     public static function getSubCategories(){
         $parent = $_REQUEST['parent'];

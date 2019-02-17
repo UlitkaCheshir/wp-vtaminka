@@ -277,10 +277,12 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
-
+                     ProductService.getCategory().then(response=>{
+                         $scope.categories = response;
+                    });
                 } ]
             },
             "content": {
@@ -341,7 +343,46 @@ app.config( [
         }
     });
 
-    $stateProvider.state('singleProduct' , {
+    $stateProvider.state('categoryProducts',{
+
+            'url':'/category/:categoryID',
+            "views":{
+                "header":{
+                    "templateUrl": "templates/header.html",
+                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                        $scope.langs = langs;
+                        $scope.cart = CartService.getCart();
+                    } ]
+                },
+                "content":{
+                    'templateUrl': "templates/categoryProducts/categoryProducts.html",
+                    controller:['$scope', '$stateParams' ,'ProductService','categoryProducts' ,function ($scope,$stateParams,ProductService,categoryProducts) {
+                        $scope.categoryProducts = categoryProducts;
+
+                        $scope.categoryID = $scope.categoryProducts
+
+                    }]
+                },
+                "footer": {
+                    'templateUrl': "templates/footer.html",
+                },
+            },
+            'resolve': {
+
+                'langs': [ 'LocaleService' , function ( LocaleService ){
+                    return LocaleService.getLangs();
+                }  ],
+
+                'categoryProducts':['ProductService','$stateParams', function  ( ProductService, $stateParams){
+                    return ProductService.getCategoryProducts($stateParams.categoryID);
+                }]
+
+            }
+
+        });
+
+
+        $stateProvider.state('singleProduct' , {
             'url': '/product/:productID/:productAmount',
             'views':{
                 "header":{
@@ -1189,21 +1230,35 @@ class ProductService{
 
     async getProducts(){
 
-        //let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}` );
-
         try{
 
             let response = await this._$http({
-                method : "POST",
-                url : '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
-                data: {
-                    'action': 'getProductList',
+                method: 'POST',
+                url: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
+                data:{
+                        'numberposts': 10,
+                        'action': 'getProductList',
+                    },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
                 }
             });
 
 
+            console.log('RESPONSE: ' , response.data);
 
-            console.log('RESPONSE: ' , response);
+            let products = response.data.products;
+
+
+            products.forEach( p => {
+                p.amount = 1;
+            } );
+
+            return products;
 
         }//try
         catch( ex ){
@@ -1213,15 +1268,47 @@ class ProductService{
         }//catch
 
 
-        let products = response.data;
 
-        products.forEach( p => {
-            p.amount = 1;
-        } );
-
-        return products;
 
     }//getProducts
+
+    async getCategory(){
+
+        try{
+
+            let response = await this._$http({
+                method: 'POST',
+                url: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
+                data:{
+                    'action': 'getCategories',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+
+            console.log('RESPONSE: ' , response.data);
+
+            let categories = response.data;
+
+            return categories;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
+    }//getCategory
+
+    async getCategoryProducts( id ) {
+
+    }//getCategoryProducts
 
     async getSingleProduct(productID){
 
