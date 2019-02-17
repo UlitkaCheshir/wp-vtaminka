@@ -165,34 +165,42 @@ class ajaxApi implements interfaceApi{
         $order = filter_input(INPUT_POST,'order');
 
         $order = json_decode($order);
-//        $phone = filter_input(INPUT_POST,'phone',FILTER_SANITIZE_STRING);
-//        $email = filter_input(INPUT_POST,'email',FILTER_SANITIZE_STRING);
-//        $message = filter_input(INPUT_POST,'message',FILTER_SANITIZE_STRING);
-//
-//        $postID = wp_insert_post([
-//            'post_title' => $name,
-//            'post_content' => $message,
-//            'post_type' => 'feedback',
-//            'post_status'   => 'publish',
-//            'post_author'   => 1,
-//        ]);
-//
-//        if( is_wp_error($postID) || $postID == 0 ){
-//
-//            self::echoDataWithHeader([
-//                'fields' => [
-//                    'message' => 'Создание не удалось',
-//                    'error' => $postID,
-//                    'code' => 500,
-//                    'data' => [ $name , $message ]
-//                ]
-//            ]);
-//
-//        }//if
-//
-//
-//        update_post_meta( $postID , 'email' , $email );
-//        update_post_meta( $postID , 'phone' , $phone );
+
+        $productString = '';
+        foreach ($order->products as $product) :
+
+            $productString .= 'ID' ." " .$product->ProductID ." ".'Название' ." ".$product->ProductTitle ." ".'Цена' ." ".$product->ProductPrice ." ".'Количество' ." ".$product->amount .'<br/>';
+
+
+        endforeach;
+
+        $postID = wp_insert_post([
+            'post_title' => $order->user->userName,
+            'post_content' => $productString,
+            'post_type' => 'orders',
+            'post_status'   => 'publish',
+            'post_author'   => 1,
+        ]);
+
+        if( is_wp_error($postID) || $postID == 0 ){
+
+            self::echoDataWithHeader([
+                'fields' => [
+                    'message' => 'Создание не удалось',
+                    'error' => $postID,
+                    'code' => 500,
+                ]
+            ]);
+
+        }//if
+
+        update_post_meta( $postID , 'email' , $order->user->userEmail );
+        update_post_meta( $postID , 'phone' , $order->user->userPhone );
+        update_post_meta( $postID , 'address' , $order->user->userAdress );
+        update_post_meta( $postID , 'card' , $order->user->numberCard );
+        update_post_meta( $postID , 'cvv' , $order->user->cvvCard );
+        update_post_meta( $postID , 'month' , $order->user->monthCard );
+        update_post_meta( $postID , 'year' , $order->user->yearCard );
 
         self::echoDataWithHeader([
             'fields' => [
