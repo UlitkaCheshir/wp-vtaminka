@@ -53,6 +53,36 @@ export default class CartService{
     }
 
 
+    async addOrder( order){
+        try{
+
+            let response = await this.http({
+                method: 'POST',
+                url: this.PASS.HOST_WP,
+                data:{
+                    'order': order,
+                    'action': 'AddOrder',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+            console.log("RESPONSE ORDER", response.data);
+            return  ;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
+    }
+
     total(){
 
         let Total={

@@ -20,7 +20,7 @@
                 <div class="clearfix">
                     <div class="inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <label>
-                      <input class=""  placeholder="{{'LAYOUT_YOU_NAME_LINK' | translate }}" ng-blur="RegName()" ng-model="name">
+                            <input class=""  placeholder="{{'LAYOUT_YOU_NAME_LINK' | translate }}" ng-model="order.user.userName" >
                         </label>
                         <label ng-if="!regName" style="color: red;" translate>LAYOUT_INCORRECT_NAME</label>
                     </div>
@@ -28,30 +28,70 @@
                     <div class="telInp inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <label>
 
-                            <input class=""  placeholder="{{'LAYOUT_CONTACT_EMAIL_LINK' | translate }}" ng-blur="RegEmail()" ng-model="email">
+                            <input class=""  placeholder="{{'LAYOUT_CONTACT_EMAIL_LINK' | translate }}" ng-model="order.user.userEmail" >
                             <label ng-if="!regMail" style="color: red;" translate>LAYOUT_INCORRECT_MAIL</label>
                         </label>
                     </div>
                     <div class=" inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <label>
 
-                            <input class=""  placeholder="{{'LAYOUT_CONTACT_PHONE_LINK' | translate }}" ng-blur="RegPhone()" ng-model="phone">
+                            <input class=""  placeholder="{{'LAYOUT_CONTACT_PHONE_LINK' | translate }}" ng-model="order.user.userPhone" >
                             <label ng-if="!regPhone" style="color: red;" translate>LAYOUT_INCORRECT_PHONE</label>
                         </label>
                     </div>
                     <div class=" inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <label>
-
-                            <input class=""  placeholder="{{'LAYOUT_ADRESS' | translate }}">
+                            <input ng-model="order.user.userAdress" placeholder="{{'LAYOUT_ADRESS' | translate }}">
                         </label>
                     </div>
                     <div class="areaWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <textarea></textarea>
+                        <textarea ng-model="order.user.userMessage"></textarea>
                     </div>
                 </div>
 
+
+                <h2>Оплата:</h2>
+                <div class="clearfix">
+                    <div class="inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <label>
+                            <input ng-model="order.user.numberCard"  placeholder="Номер карты">
+                        </label>
+                    </div>
+
+                    <div class="telInp inputWrap col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <select ng-model="order.user.yearCard" class="cs-select cs-skin-border">
+                            <option value="" disabled selected>Выберите год</option>
+                            <option ng-repeat="year in years" ng-value="year">
+                            {{year}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class=" inputWrap col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <select ng-model="order.user.monthCard" class="cs-select cs-skin-border">
+                            <option value="" disabled selected>Выберите месяц</option>
+                            <option ng-repeat="month in monthes" ng-value="month">
+                            {{month}}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class=" inputWrap col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <label>
+
+                            <input ng-model="order.user.cvvCard" placeholder="CVV код">
+                        </label>
+                    </div>
+                    <div class=" inputWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <label>
+
+                            <input ng-model="order.user.nameCard"  placeholder="Имя карты">
+                        </label>
+                    </div>
+
+                </div>
+
                 <div class="areaWrap col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <button id="js-ripple-btn" class="button styl-material" translate>
+                    <button ng-click="OrderConfirm()" id="js-ripple-btn" class="button styl-material" translate>
                         LAYOUT_ORDER_CONFIRM
                         <svg class="ripple-obj" id="js-ripple">
                             <use height="100" width="100" xlink:href="#ripply-scott" class="js-ripple"></use>
@@ -114,7 +154,7 @@
 
                 </div>
 
-                <div class="text-left clearfix cartAllCount productCartRow" ng-if="promoOk">
+                <div class="text-left clearfix cartAllCount productCartRow" >
 
                     <div class="empty col-lg-2 col-md-2 col-sm-2 col-xs-12 productImg cartCol">
 
@@ -130,14 +170,14 @@
                     <div class="text-center  col-lg-2 col-md-3 col-sm-3 col-xs-4 productCartText cartCol" ng-bind-template="{{Promo.discount}}%">
 
                     </div>
-                    <div class="text-center col-lg-2 col-md-3 col-sm-3 col-xs-4 productCartText cartCol" ng-bind-template="${{Promo.delivery}}">
+                    <div class="text-center col-lg-2 col-md-3 col-sm-3 col-xs-4 productCartText cartCol" ng-bind-template="{{delivery}}">
 
                     </div>
 
 
                 </div>
 
-                <div class="clearfix cartAllCount productCartRow" ng-if="promoOk">
+                <div class="clearfix cartAllCount productCartRow">
 
 
                     <div class=" col-lg-6 col-md-4 col-sm-4 col-xs-4 productCartText cartCol">
@@ -151,7 +191,7 @@
                     <div class="text-center col-lg-2 col-md-3 col-sm-3 col-xs-4 productCartText cartCol" ng-bind="Total.totalAmount">
 
                     </div>
-                    <div class="text-center col-lg-2 col-md-3 col-sm-3 col-xs-4 productCartText cartCol" ng-bind-template="${{(Total.totalPrice + +Promo.delivery)*(1-Promo.discount/100)}}">
+                    <div class="text-center col-lg-2 col-md-3 col-sm-3 col-xs-4 productCartText cartCol" ng-bind-template="${{Total.totalPrice + +delivery}}">
 
                     </div>
 

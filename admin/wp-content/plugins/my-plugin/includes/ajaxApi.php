@@ -77,10 +77,12 @@ class ajaxApi implements interfaceApi{
     public static function getProductList(){
 
         $numberposts = filter_input(INPUT_POST,'numberposts',FILTER_SANITIZE_NUMBER_INT);
+        $offset = filter_input(INPUT_POST,'offset',FILTER_SANITIZE_NUMBER_INT);
 
         $products = get_posts([
             'numberposts' => $numberposts,
             'post_type' => 'goods',
+            'offset'=> $offset
 
         ]);
 
@@ -111,12 +113,97 @@ class ajaxApi implements interfaceApi{
             'header' => 'json',
             'fields'=>[
                 'products'=>$productsNew,
+                '$offset'=>$offset,
 
             ]
             ]
         );
 
     }//getProductList
+
+    public static function getSingleProduct(){
+
+        $id = filter_input(INPUT_POST,'id',FILTER_SANITIZE_NUMBER_INT);
+
+
+        $thumb_id = get_post_thumbnail_id($id);
+        $image = wp_get_attachment_image_src($thumb_id,'full');//
+        $image = $image[0];
+
+        $price = get_post_meta($id  , 'price' , true );
+
+        $post = get_post( $id );
+
+        $singleProduct=[
+            "ProductID"=>$id,
+            "ProductTitle"=>$post->post_title,
+            "ProductPrice"=>$price,
+            "ProductImage"=>$image,
+            "ProductDescription"=>$post->post_content
+        ];
+
+        self::echoDataWithHeader([
+                'header' => 'json',
+                'fields'=> $singleProduct,
+
+            ]
+        );
+    }//getSingleProduct
+
+    public static function getDelivery(){
+
+        $delivery = get_option('delivery');
+
+        self::echoDataWithHeader([
+            'fields' =>  $delivery
+        ]);
+
+    }//getDelivery
+
+    public static function AddOrder(){
+
+        $order = filter_input(INPUT_POST,'order');
+
+        $order = json_decode($order);
+//        $phone = filter_input(INPUT_POST,'phone',FILTER_SANITIZE_STRING);
+//        $email = filter_input(INPUT_POST,'email',FILTER_SANITIZE_STRING);
+//        $message = filter_input(INPUT_POST,'message',FILTER_SANITIZE_STRING);
+//
+//        $postID = wp_insert_post([
+//            'post_title' => $name,
+//            'post_content' => $message,
+//            'post_type' => 'feedback',
+//            'post_status'   => 'publish',
+//            'post_author'   => 1,
+//        ]);
+//
+//        if( is_wp_error($postID) || $postID == 0 ){
+//
+//            self::echoDataWithHeader([
+//                'fields' => [
+//                    'message' => 'Создание не удалось',
+//                    'error' => $postID,
+//                    'code' => 500,
+//                    'data' => [ $name , $message ]
+//                ]
+//            ]);
+//
+//        }//if
+//
+//
+//        update_post_meta( $postID , 'email' , $email );
+//        update_post_meta( $postID , 'phone' , $phone );
+
+        self::echoDataWithHeader([
+            'fields' => [
+                'message' => 'Создание удалось!',
+                'code' => 200,
+                '$scope.order' => $order
+            ]
+        ]);
+
+
+    }//AddOrder
 
     public static function getCategories(){
 

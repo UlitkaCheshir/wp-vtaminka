@@ -45,6 +45,9 @@ ajaxApi::registerApiAction('sendMessageToAdmin');
 ajaxApi::registerApiAction('getProductList');
 ajaxApi::registerApiAction('getCategories');
 ajaxApi::registerApiAction('getProductByCategory');
+ajaxApi::registerApiAction('getSingleProduct');
+ajaxApi::registerApiAction('getDelivery');
+ajaxApi::registerApiAction('AddOrder');
 
 
 add_action('admin_menu', 'CreateMyPluginMenu');

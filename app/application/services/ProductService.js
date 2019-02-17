@@ -12,16 +12,17 @@ export default class ProductService{
 
     }
 
-    async getProducts(){
+    async getProducts(limit, offset){
 
         try{
 
             let response = await this._$http({
                 method: 'POST',
-                url: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
+                url: this._PASS.HOST_WP,
                 data:{
-                        'numberposts': 10,
-                        'action': 'getProductList',
+                    'numberposts': limit || 10,
+                    'offset': offset || 0,
+                    'action': 'getProductList',
                     },
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 transformRequest: function(obj) {
@@ -35,6 +36,7 @@ export default class ProductService{
 
             let products = response.data.products;
 
+            console.log('RESPONSE', response.data);
 
             products.forEach( p => {
                 p.amount = 1;
@@ -60,7 +62,7 @@ export default class ProductService{
 
             let response = await this._$http({
                 method: 'POST',
-                url: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
+                url: this._PASS.HOST_WP,
                 data:{
                     'action': 'getCategories',
                 },
@@ -93,7 +95,7 @@ export default class ProductService{
 
             let response = await this._$http({
                 method: 'POST',
-                url: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
+                url: this._PASS.HOST_WP,
                 data:{
                     'nameCategory': name,
                     'action': 'getProductByCategory',
@@ -126,12 +128,73 @@ export default class ProductService{
 
     async getSingleProduct(productID){
 
-        let id = this._PASS.GET_PRODUCT.replace('{{ProductID}}' , productID);
+        try{
 
-        let response = await this._$http.get(`${this._PASS.HOST}${id}`);
+            let response = await this._$http({
+                method: 'POST',
+                url: this._PASS.HOST_WP,
+                data:{
+                    'id': productID,
+                    'action': 'getSingleProduct',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
 
-        return response.data;
+
+
+            let product = response.data;
+
+            console.log('RESPONSE sungle', response.data);
+
+            return  product;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
 
     }//getSingleProduct
 
+    async getDelivery(){
+
+
+        try{
+
+            let response = await this._$http({
+                method: 'POST',
+                url: this._PASS.HOST_WP,
+                data:{
+                    'action': 'getDelivery',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+
+
+            console.log("selivery", response.data);
+            let delivery = response.data;
+
+            return delivery;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
+    }
 }

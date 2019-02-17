@@ -54,6 +54,7 @@ angular.module('VtaminkaApplication.controllers')
 angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
         HOST: '/wp-vtaminka/app/public/',
+        HOST_WP: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
         GET_NEWS : 'news/news-list.json',
         GET_LANGS: 'i18n/langs.json',
         GET_PRODUCTS :'products/products-list.json',
@@ -156,13 +157,17 @@ app.config( [
             },
             "content": {
                 'templateUrl': "templates/home/home.html",
-                controller: [ '$scope' ,  'CartService' , 'products', 'news' , function ($scope , CartService , products,news){
+                controller: [ '$scope' ,  'CartService' , 'products', 'news', 'ProductService' , function ($scope , CartService , products,news, ProductService){
 
                     ripplyScott.init('.button', 0.75);
 
-                    let start=0;
-                    let end=12;
+                    $scope.limit = 2;
+                    $scope.offset = 0;
+
                     $scope.cart = CartService.getCart();
+
+                    $scope.products = products;
+
                     products.forEach(p=>{
 
                         for(let i=0; i<$scope.cart.length; i++){
@@ -173,18 +178,37 @@ app.config( [
                         }
                     })
 
-                    $scope.products = products.slice(start,end);
+                    $scope.MoreProduct = async function(){
 
-                    $scope.MoreProduct = function  (){
+                        $scope.offset += $scope.limit;
 
-                        if(products.length>end){
-                            end += 4;
-                        }
 
-                        console.log(`start: ${start} end: ${end}`);
 
-                        $scope.products = products.slice(start,end);
-                    }
+                        let moreProducts = await ProductService.getProducts( $scope.limit , $scope.offset );
+
+
+
+                        moreProducts.forEach( p => {
+
+                            $scope.products.push(p);
+
+                            let checkProduct = $scope.cart.find( pr => pr.productID === p.productID );
+
+                            if(checkProduct){
+
+                                p.amount = checkProduct.amount;
+                                p.isInCart = true;
+
+                            }//if
+
+                        } );
+
+                        if( moreProducts.length === 0 ) {
+
+                            $scope.offset += $scope.products.length;
+                        }//if
+
+                    }//MoreProduct
 
                     $scope.news = news;
 
@@ -347,7 +371,6 @@ app.config( [
                         $scope.$watch( 'cart.length' , function (){
 
                                 $scope.Total = CartService.total();
-                                //$scope.$apply();
 
                         } );
                     } ]
@@ -381,9 +404,58 @@ app.config( [
                 },
                 "content": {
                     'templateUrl': "templates/checkout/checkout.html",
-                    controller: [ '$scope' , 'PASS','$http', 'CartService' ,  function ($scope , PASS, $http, CartService ){
+                    controller: [ '$scope' , 'PASS','$http', 'CartService', 'ProductService' ,   function ($scope , PASS, $http, CartService, ProductService ){
 
                         $scope.cart = CartService.getCart();
+
+                        ProductService.getDelivery()
+                            .then(response=>{
+                                $scope.delivery = response
+                            });
+
+                        $scope.order = {
+
+                            user: {
+                                'userName': '',
+                                'userEmail': '',
+                                'userPhone': '',
+                                'userAdress': '',
+                                'userMessage': '',
+                                'numberCard': '',
+                                'yearCard': '',
+                                'monthCard': '',
+                                'cvvCard': '',
+                                'nameCard': '',
+                            },
+                            promoCode: '',
+                            products: $scope.cart
+                        };
+
+                        $scope.years = [
+                            1990,
+                            1991,
+                            1992,
+                            1993,
+                            1994,
+                            1995,
+                        ];
+
+                        $scope.monthes = [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12
+                        ];
+
+                        $scope.Total = CartService.total();
 
                         $scope.promoOk=false;
 
@@ -429,6 +501,12 @@ app.config( [
                             
                         }//PromoClick
 
+                        $scope.OrderConfirm = function(){
+
+                            CartService.addOrder( JSON.stringify($scope.order));
+
+                        };
+                        
                         $scope.RegName = function  (){
 
                             let regEng = /^[A-Z]{1}[a-z]{3,10}$/;
