@@ -349,9 +349,13 @@ app.config( [
             "views":{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                         $scope.langs = langs;
+
                         $scope.cart = CartService.getCart();
+                        ProductService.getCategory().then(response=>{
+                            $scope.categories = response;
+                        });
                     } ]
                 },
                 "content":{
@@ -359,7 +363,10 @@ app.config( [
                     controller:['$scope', '$stateParams' ,'ProductService','categoryProducts' ,function ($scope,$stateParams,ProductService,categoryProducts) {
                         $scope.categoryProducts = categoryProducts;
 
-                        $scope.categoryID = $scope.categoryProducts
+                        console.log(' $scope.categoryProducts',  $scope.categoryProducts);
+                        $scope.categoryName = $stateParams.categoryID;
+
+                        // $scope.categoryID = $scope.categoryProducts
 
                     }]
                 },
@@ -387,9 +394,12 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
-                       $scope.langs = langs;
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
+                        $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        ProductService.getCategory().then(response=>{
+                            $scope.categories = response;
+                        });
                     } ]
                 },
                 "content": {
@@ -449,9 +459,12 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        ProductService.getCategory().then(response=>{
+                            $scope.categories = response;
+                        });
                     } ]
                 },
                 "content": {
@@ -489,9 +502,12 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        ProductService.getCategory().then(response=>{
+                            $scope.categories = response;
+                        });
                     } ]
                 },
                 "content": {
@@ -607,9 +623,12 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
+                    ProductService.getCategory().then(response=>{
+                        $scope.categories = response;
+                    });
                 } ]
             },
             "content": {
@@ -1249,8 +1268,6 @@ class ProductService{
             });
 
 
-            console.log('RESPONSE: ' , response.data);
-
             let products = response.data.products;
 
 
@@ -1292,7 +1309,6 @@ class ProductService{
             });
 
 
-            console.log('RESPONSE: ' , response.data);
 
             let categories = response.data;
 
@@ -1306,7 +1322,40 @@ class ProductService{
         }//catch
     }//getCategory
 
-    async getCategoryProducts( id ) {
+    async getCategoryProducts( name ) {
+
+        try{
+
+            let response = await this._$http({
+                method: 'POST',
+                url: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
+                data:{
+                    'nameCategory': name,
+                    'action': 'getProductByCategory',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+
+            let categories = {};
+
+            categories.products = response.data.products;
+
+            categories.name = response.data.nameCategory
+            return  categories;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
 
     }//getCategoryProducts
 

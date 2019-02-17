@@ -218,9 +218,13 @@ app.config( [
             "views":{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                         $scope.langs = langs;
+
                         $scope.cart = CartService.getCart();
+                        ProductService.getCategory().then(response=>{
+                            $scope.categories = response;
+                        });
                     } ]
                 },
                 "content":{
@@ -228,7 +232,10 @@ app.config( [
                     controller:['$scope', '$stateParams' ,'ProductService','categoryProducts' ,function ($scope,$stateParams,ProductService,categoryProducts) {
                         $scope.categoryProducts = categoryProducts;
 
-                        $scope.categoryID = $scope.categoryProducts
+                        console.log(' $scope.categoryProducts',  $scope.categoryProducts);
+                        $scope.categoryName = $stateParams.categoryID;
+
+                        // $scope.categoryID = $scope.categoryProducts
 
                     }]
                 },
@@ -256,9 +263,12 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
-                       $scope.langs = langs;
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
+                        $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        ProductService.getCategory().then(response=>{
+                            $scope.categories = response;
+                        });
                     } ]
                 },
                 "content": {
@@ -318,9 +328,12 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        ProductService.getCategory().then(response=>{
+                            $scope.categories = response;
+                        });
                     } ]
                 },
                 "content": {
@@ -358,9 +371,12 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                         $scope.langs = langs;
                         $scope.cart = CartService.getCart();
+                        ProductService.getCategory().then(response=>{
+                            $scope.categories = response;
+                        });
                     } ]
                 },
                 "content": {
@@ -476,9 +492,12 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', function ($scope, CartService , langs, ProductService ){
                     $scope.langs = langs;
                     $scope.cart = CartService.getCart();
+                    ProductService.getCategory().then(response=>{
+                        $scope.categories = response;
+                    });
                 } ]
             },
             "content": {

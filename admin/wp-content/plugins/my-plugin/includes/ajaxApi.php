@@ -162,13 +162,38 @@ class ajaxApi implements interfaceApi{
 
     public static function getProductByCategory(){
 
+        $nameCategory = filter_input(INPUT_POST,'nameCategory',FILTER_SANITIZE_STRING);
 
-        $products = query_posts(array('vtaminkataxonomy' => '3', 'post_type' => 'goods'));
+
+        $products = query_posts(array('vtaminkataxonomy' => $nameCategory, 'post_type' => 'goods'));
+
+        $productsNew = [];
+
+        foreach ($products as $product) :
+            $price = get_post_meta($product->ID, 'price', true );
+            $id = $product->ID;
+
+            $thumb_id = get_post_thumbnail_id($id);
+            $image = wp_get_attachment_image_src($thumb_id,'full');//
+            $image = $image[0];
+
+            $link = get_permalink($product->ID);
+
+            $productsNew[]=[
+                "ProductID"=>$id,
+                "ProductTitle"=>$product->post_title,
+                "ProductPrice"=>$price,
+                "ProductImage"=>$image,
+                "link"=>$link
+            ];
+
+        endforeach;
 
         self::echoDataWithHeader([
                 'header' => 'json',
                 'fields'=>[
-                    'products'=>$products,
+                    'products'=>$productsNew,
+                    'nameCategory'=>$nameCategory,
 
                 ]
             ]
