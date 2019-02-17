@@ -484,6 +484,7 @@ app.config( [
                         $scope.regMail=true;
                         $scope.regPhone=true;
 
+
                         ripplyScott.init('.button', 0.75);
 
                         $scope.PromoClick = function  (){
