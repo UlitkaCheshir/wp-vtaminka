@@ -45,20 +45,45 @@
     <div class="clearfix product">
         <div class=" col-lg-12 col-md-12 col-sm-12 col-xs-12 productText">
 
-            <div md-content class="md-padding">
-                <md-tabs md-selected="selectedIndex" md-border-bottom md-autoselect md-swipe-content>
-                    <md-tab ng-repeat="tab in tabs"
-                            ng-disabled="tab.disabled"
-                            label="{{tab.title}}">
-                        <div class="demo-tab tab{{$index%4}}" style="padding: 25px; text-align: center;">
-                            <div ng-bind="tab.content"></div>
-                            <br/>
-                            <md-button class="md-primary md-raised" ng-disabled="tabs.length <= 1">Remove Tab</md-button>
-                        </div>
-                    </md-tab>
-                </md-tabs>
-            </div>
+            <div>
+                <div class="tabsContent">
+                    <ul class="nav nav-tabs" id="myTabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Описание</a></li>
+                        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Состав</a></li>
+                        <li role="presentation"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Информация о продукте</a></li>
+                        <li role="presentation" class=""><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Описание</a></li>
+                        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Состав</a></li>
+                        <li role="presentation"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Информация о продукте</a></li>
+                        <li role="presentation" class=""><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Описание</a></li>
+                        <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Состав</a></li>
+                        <li role="presentation"><a href="#info" aria-controls="info" role="tab" data-toggle="tab">Информация о продукте</a></li>
 
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active productBlock" id="home">
+
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque sagittis erat sit amet enim auctor feugiat.  Aenean nec ultricies enim. Vestibulum ut viverra orci. Maecenas suscipit odio quis felis varius mollis.  Aenean nec ultricies enim. Vestibulum ut viverra orci. Maecenas suscipit odio quis felis varius mollis. </p>
+                        <p> Aenean nec ultricies enim.  Aenean nec ultricies enim. Vestibulum ut viverra orci. Maecenas suscipit odio quis felis varius mollis.  Aenean nec ultricies enim. Vestibulum ut viverra orci. Maecenas suscipit odio quis felis varius mollis. Vestibulum ut viverra orci. Maecenas suscipit odio quis felis varius mollis. Duis vitae mauris erat.</p>
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane productBlock" id="profile">
+
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque sagittis erat sit amet enim auctor feugiat. </p>
+                        <p> Aenean nec ultricies enim. Vestibulum ut viverra orci. Maecenas suscipit odio quis felis varius mollis. Duis vitae mauris erat.</p>
+                    </div>
+                    <div role="tabpanel" class="tab-pane productBlock" id="info">
+
+                        <p><span class="bold">Дозировка на год: </span> 1000г</p>
+                        <p><span class="bold">Дозировка на 6 месяцев:</span> 500г</p>
+                        <p><span class="bold">Противопоказания: </span> нет</p>
+                        <p><span class="bold">Дополнительные факты: </span> нет</p>
+                        <p><span class="bold">Количество в упаковке: </span> 100</p>
+                    </div>
+                </div>
+
+            </div>
 
             <!--<div>-->
                 <!--<div class="tabsContent">-->

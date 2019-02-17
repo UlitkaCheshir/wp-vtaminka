@@ -22,7 +22,7 @@
 
         </ul>
 
-        <div class="more">
+        <div ng-if="offset <= products.length" class="more">
             <button ng-click="MoreProduct()"  id="js-ripple-btn" class="button styl-material" >
                 <span style="cursor: pointer" translate>LAYOUT_MORE_LINK</span>
                 <svg class="ripple-obj" id="js-ripple">

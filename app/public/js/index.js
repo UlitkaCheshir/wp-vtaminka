@@ -185,6 +185,7 @@ angular.module('VtaminkaApplication.controllers')
 angular.module('VtaminkaApplication.constants')
     .constant('PASS' , {
         HOST: '/wp-vtaminka/app/public/',
+        HOST_WP: '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
         GET_NEWS : 'news/news-list.json',
         GET_LANGS: 'i18n/langs.json',
         GET_PRODUCTS :'products/products-list.json',
@@ -277,21 +278,28 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', 'categories', function ($scope, CartService , langs, ProductService, categories ){
                     $scope.langs = langs;
+
                     $scope.cart = CartService.getCart();
+
+                    $scope.categories = categories;
 
                 } ]
             },
             "content": {
                 'templateUrl': "templates/home/home.html",
-                controller: [ '$scope' ,  'CartService' , 'products', 'news' , function ($scope , CartService , products,news){
+                controller: [ '$scope' ,  'CartService' , 'products', 'news', 'ProductService' , function ($scope , CartService , products,news, ProductService){
 
                     ripplyScott.init('.button', 0.75);
 
-                    let start=0;
-                    let end=12;
+                    $scope.limit = 2;
+                    $scope.offset = 0;
+
                     $scope.cart = CartService.getCart();
+
+                    $scope.products = products;
+
                     products.forEach(p=>{
 
                         for(let i=0; i<$scope.cart.length; i++){
@@ -302,18 +310,37 @@ app.config( [
                         }
                     })
 
-                    $scope.products = products.slice(start,end);
+                    $scope.MoreProduct = async function(){
 
-                    $scope.MoreProduct = function  (){
+                        $scope.offset += $scope.limit;
 
-                        if(products.length>end){
-                            end += 4;
-                        }
 
-                        console.log(`start: ${start} end: ${end}`);
 
-                        $scope.products = products.slice(start,end);
-                    }
+                        let moreProducts = await ProductService.getProducts( $scope.limit , $scope.offset );
+
+
+
+                        moreProducts.forEach( p => {
+
+                            $scope.products.push(p);
+
+                            let checkProduct = $scope.cart.find( pr => pr.productID === p.productID );
+
+                            if(checkProduct){
+
+                                p.amount = checkProduct.amount;
+                                p.isInCart = true;
+
+                            }//if
+
+                        } );
+
+                        if( moreProducts.length === 0 ) {
+
+                            $scope.offset += $scope.products.length;
+                        }//if
+
+                    }//MoreProduct
 
                     $scope.news = news;
 
@@ -333,6 +360,10 @@ app.config( [
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
             }  ],
+
+            'categories':['ProductService', function  ( ProductService){
+                return ProductService.getCategory();
+            }],
             'news': [ 'NewsService', function  ( NewsService ){
                 return NewsService.getNews()
             }
@@ -341,14 +372,68 @@ app.config( [
         }
     });
 
+    $stateProvider.state('categoryProducts',{
+
+            'url':'/category/:categoryID',
+            "views":{
+                "header":{
+                    "templateUrl": "templates/header.html",
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', 'categories', function ($scope, CartService , langs, ProductService, categories ){
+                        $scope.langs = langs;
+
+                        $scope.cart = CartService.getCart();
+
+                        $scope.categories = categories;
+
+                    } ]
+                },
+                "content":{
+                    'templateUrl': "templates/categoryProducts/categoryProducts.html",
+                    controller:['$scope', '$stateParams' ,'ProductService','categoryProducts' ,function ($scope,$stateParams,ProductService,categoryProducts) {
+                        $scope.categoryProducts = categoryProducts;
+
+                        console.log(' $scope.categoryProducts',  $scope.categoryProducts);
+                        $scope.categoryName = $stateParams.categoryID;
+
+                        // $scope.categoryID = $scope.categoryProducts
+
+                    }]
+                },
+                "footer": {
+                    'templateUrl': "templates/footer.html",
+                },
+            },
+            'resolve': {
+
+                'langs': [ 'LocaleService' , function ( LocaleService ){
+                    return LocaleService.getLangs();
+                }  ],
+
+                'categories':['ProductService', function  ( ProductService){
+                    return ProductService.getCategory();
+                }],
+
+                'categoryProducts':['ProductService','$stateParams', function  ( ProductService, $stateParams){
+                    return ProductService.getCategoryProducts($stateParams.categoryID);
+                }]
+
+            }
+
+        });
+
+
     $stateProvider.state('singleProduct' , {
             'url': '/product/:productID/:productAmount',
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
-                       $scope.langs = langs;
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', 'categories', function ($scope, CartService , langs, ProductService, categories ){
+                        $scope.langs = langs;
+
                         $scope.cart = CartService.getCart();
+
+                        $scope.categories = categories;
+
                     } ]
                 },
                 "content": {
@@ -395,6 +480,11 @@ app.config( [
                 return LocaleService.getLangs();
                 }  ],
 
+
+                'categories':['ProductService', function  ( ProductService){
+                    return ProductService.getCategory();
+                }],
+
                 'product':['ProductService','$stateParams', function  ( ProductService, $stateParams){
                     return ProductService.getSingleProduct($stateParams.productID);
                 }
@@ -408,9 +498,13 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', 'categories', function ($scope, CartService , langs, ProductService, categories ){
                         $scope.langs = langs;
+
                         $scope.cart = CartService.getCart();
+
+                        $scope.categories = categories;
+
                     } ]
                 },
                 "content": {
@@ -424,7 +518,6 @@ app.config( [
                         $scope.$watch( 'cart.length' , function (){
 
                                 $scope.Total = CartService.total();
-                                //$scope.$apply();
 
                         } );
                     } ]
@@ -439,6 +532,10 @@ app.config( [
                     return LocaleService.getLangs();
                 }  ],
 
+                'categories':['ProductService', function  ( ProductService){
+                    return ProductService.getCategory();
+                }],
+
 
             }
         });
@@ -448,16 +545,69 @@ app.config( [
             'views':{
                 "header":{
                     "templateUrl": "templates/header.html",
-                    controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                    controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', 'categories', function ($scope, CartService , langs, ProductService, categories ){
                         $scope.langs = langs;
+
                         $scope.cart = CartService.getCart();
+
+                        $scope.categories = categories;
+
                     } ]
                 },
                 "content": {
                     'templateUrl': "templates/checkout/checkout.html",
-                    controller: [ '$scope' , 'PASS','$http', 'CartService' ,  function ($scope , PASS, $http, CartService ){
+                    controller: [ '$scope' , 'PASS','$http', 'CartService', 'ProductService' ,   function ($scope , PASS, $http, CartService, ProductService ){
 
                         $scope.cart = CartService.getCart();
+
+                        ProductService.getDelivery()
+                            .then(response=>{
+                                $scope.delivery = response
+                            });
+
+                        $scope.order = {
+
+                            user: {
+                                'userName': '',
+                                'userEmail': '',
+                                'userPhone': '',
+                                'userAdress': '',
+                                'userMessage': '',
+                                'numberCard': '',
+                                'yearCard': '',
+                                'monthCard': '',
+                                'cvvCard': '',
+                                'nameCard': '',
+                            },
+                            promoCode: '',
+                            products: $scope.cart
+                        };
+
+                        $scope.years = [
+                            1990,
+                            1991,
+                            1992,
+                            1993,
+                            1994,
+                            1995,
+                        ];
+
+                        $scope.monthes = [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9,
+                            10,
+                            11,
+                            12
+                        ];
+
+                        $scope.Total = CartService.total();
 
                         $scope.promoOk=false;
 
@@ -503,6 +653,13 @@ app.config( [
                             
                         }//PromoClick
 
+                        $scope.OrderConfirm = function(){
+
+                            CartService.addOrder( JSON.stringify($scope.order));
+
+                            $scope.cart = CartService.getCart();
+                        };
+                        
                         $scope.RegName = function  (){
 
                             let regEng = /^[A-Z]{1}[a-z]{3,10}$/;
@@ -553,6 +710,10 @@ app.config( [
             },
             'resolve': {
 
+
+                'categories':['ProductService', function  ( ProductService){
+                    return ProductService.getCategory();
+                }],
                 'langs': [ 'LocaleService' , function ( LocaleService ){
                     return LocaleService.getLangs();
                 }  ],
@@ -566,9 +727,13 @@ app.config( [
         'views':{
             "header":{
                 "templateUrl": "templates/header.html",
-                controller: [ '$scope' , 'CartService' , 'langs' , function ($scope, CartService , langs ){
+                controller: [ '$scope' , 'CartService' , 'langs' , 'ProductService', 'categories', function ($scope, CartService , langs, ProductService, categories ){
                     $scope.langs = langs;
+
                     $scope.cart = CartService.getCart();
+
+                    $scope.categories = categories;
+
                 } ]
             },
             "content": {
@@ -599,6 +764,11 @@ app.config( [
             }
         },
         'resolve': {
+
+
+            'categories':['ProductService', function  ( ProductService){
+                return ProductService.getCategory();
+            }],
 
             'langs': [ 'LocaleService' , function ( LocaleService ){
                 return LocaleService.getLangs();
@@ -1054,6 +1224,41 @@ class CartService{
     }
 
 
+    async addOrder( order){
+        try{
+
+            let response = await this.http({
+                method: 'POST',
+                url: this.PASS.HOST_WP,
+                data:{
+                    'order': order,
+                    'action': 'AddOrder',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+            console.log("RESPONSE ORDER", response.data);
+
+            if(response.data.code === 200){
+
+                this.changeStorageService([]);
+            }
+
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
+    }
+
     total(){
 
         let Total={
@@ -1187,23 +1392,37 @@ class ProductService{
 
     }
 
-    async getProducts(){
-
-        //let response = await this._$http.get( `${this._PASS.HOST}${this._PASS.GET_PRODUCTS}` );
+    async getProducts(limit, offset){
 
         try{
 
             let response = await this._$http({
-                method : "POST",
-                url : '/wp-vtaminka/admin/wp-admin/admin-ajax.php',
-                data: {
+                method: 'POST',
+                url: this._PASS.HOST_WP,
+                data:{
+                    'numberposts': limit || 10,
+                    'offset': offset || 0,
                     'action': 'getProductList',
+                    },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
                 }
             });
 
 
+            let products = response.data.products;
 
-            console.log('RESPONSE: ' , response);
+            console.log('RESPONSE', response.data);
+
+            products.forEach( p => {
+                p.amount = 1;
+            } );
+
+            return products;
 
         }//try
         catch( ex ){
@@ -1213,26 +1432,151 @@ class ProductService{
         }//catch
 
 
-        let products = response.data;
 
-        products.forEach( p => {
-            p.amount = 1;
-        } );
-
-        return products;
 
     }//getProducts
 
+    async getCategory(){
+
+        try{
+
+            let response = await this._$http({
+                method: 'POST',
+                url: this._PASS.HOST_WP,
+                data:{
+                    'action': 'getCategories',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+
+
+            let categories = response.data;
+
+            return categories;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
+    }//getCategory
+
+    async getCategoryProducts( name ) {
+
+        try{
+
+            let response = await this._$http({
+                method: 'POST',
+                url: this._PASS.HOST_WP,
+                data:{
+                    'nameCategory': name,
+                    'action': 'getProductByCategory',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+
+            let categories = {};
+
+            categories.products = response.data.products;
+
+            categories.name = response.data.nameCategory
+            return  categories;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
+
+    }//getCategoryProducts
+
     async getSingleProduct(productID){
 
-        let id = this._PASS.GET_PRODUCT.replace('{{ProductID}}' , productID);
+        try{
 
-        let response = await this._$http.get(`${this._PASS.HOST}${id}`);
+            let response = await this._$http({
+                method: 'POST',
+                url: this._PASS.HOST_WP,
+                data:{
+                    'id': productID,
+                    'action': 'getSingleProduct',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
 
-        return response.data;
+
+
+            let product = response.data;
+
+            console.log('RESPONSE sungle', response.data);
+
+            return  product;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
 
     }//getSingleProduct
 
+    async getDelivery(){
+
+
+        try{
+
+            let response = await this._$http({
+                method: 'POST',
+                url: this._PASS.HOST_WP,
+                data:{
+                    'action': 'getDelivery',
+                },
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                transformRequest: function(obj) {
+                    var str = [];
+                    for(var p in obj)
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    return str.join("&");
+                }
+            });
+
+
+
+            console.log("selivery", response.data);
+            let delivery = response.data;
+
+            return delivery;
+
+        }//try
+        catch( ex ){
+
+            console.log('EX: ' , ex);
+
+        }//catch
+    }
 }
 
 /***/ }),
