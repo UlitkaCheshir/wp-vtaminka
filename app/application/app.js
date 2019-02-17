@@ -526,6 +526,7 @@ app.config( [
 
                             CartService.addOrder( JSON.stringify($scope.order));
 
+                            $scope.cart = CartService.getCart();
                         };
                         
                         $scope.RegName = function  (){

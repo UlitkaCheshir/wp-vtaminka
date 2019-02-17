@@ -73,7 +73,12 @@ export default class CartService{
             });
 
             console.log("RESPONSE ORDER", response.data);
-            return  ;
+
+            if(response.data.code === 200){
+
+                this.changeStorageService([]);
+            }
+
 
         }//try
         catch( ex ){
